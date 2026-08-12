@@ -1,0 +1,79 @@
+@import "tailwindcss";
+
+@theme inline {
+  /* System stack: nothing to download, so documents render identically
+     whether or not the machine is online. */
+  --font-sans:
+    ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue",
+    Arial, "Noto Sans", sans-serif;
+}
+
+html,
+body {
+  background: #f1f5f9;
+  color: #0f172a;
+}
+
+/* Firefox and WebKit both hide the spinner arrows on number inputs
+   with these, which stops accidental scroll-wheel edits to amounts. */
+input[type="number"] {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* ----------------------------------------------------------------
+   Print rules.
+
+   The printed document is the actual deliverable, so the browser's
+   own print dialog doubles as the PDF export: Ctrl/Cmd+P, then
+   "Save as PDF". Everything marked no-print disappears, and the
+   sheet is laid out for A4.
+   ---------------------------------------------------------------- */
+@media print {
+  @page {
+    size: A4;
+    margin: 12mm 10mm;
+  }
+
+  html,
+  body {
+    background: #fff !important;
+  }
+
+  .no-print {
+    display: none !important;
+  }
+
+  .print-sheet {
+    box-shadow: none !important;
+    border: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+    max-width: none !important;
+    border-radius: 0 !important;
+  }
+
+  /* Keep rows and the totals block from splitting across pages. */
+  tr,
+  .avoid-break {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  thead {
+    display: table-header-group;
+  }
+
+  /* Backgrounds are off by default when printing; these are part of
+     the document design, so force them on. */
+  .print-keep-color {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+}
