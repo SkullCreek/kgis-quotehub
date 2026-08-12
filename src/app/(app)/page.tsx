@@ -123,52 +123,54 @@ export default async function DashboardPage() {
             actionLabel="New quotation"
           />
         ) : (
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-slate-200 text-left text-xs uppercase tracking-wide text-slate-500">
-                <th className="px-4 py-2 font-medium">Number</th>
-                <th className="px-4 py-2 font-medium">Customer</th>
-                <th className="px-4 py-2 font-medium">Date</th>
-                <th className="px-4 py-2 font-medium">Status</th>
-                <th className="px-4 py-2 text-right font-medium">Total</th>
-              </tr>
-            </thead>
-            <tbody>
-              {recent.slice(0, 10).map((d) => {
-                const currency = getCurrency(d.currency);
-                return (
-                  <tr
-                    key={d.id}
-                    className="border-b border-slate-100 last:border-0 hover:bg-slate-50"
-                  >
-                    <td className="px-4 py-2.5">
-                      <Link
-                        href={`/documents/${d.id}`}
-                        className="font-medium text-slate-900 hover:underline"
-                      >
-                        {d.number}
-                      </Link>
-                    </td>
-                    <td className="px-4 py-2.5 text-slate-600">
-                      {d.customerName}
-                    </td>
-                    <td className="px-4 py-2.5 text-slate-500">
-                      {new Date(d.issueDate).toLocaleDateString("en-IN")}
-                    </td>
-                    <td className="px-4 py-2.5">
-                      <StatusBadge status={d.status} />
-                    </td>
-                    <td className="px-4 py-2.5 text-right font-medium whitespace-nowrap text-slate-900">
-                      {formatMoney(
-                        Math.round(Number(d.total) * 10 ** currency.decimals),
-                        currency,
-                      )}
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-[600px] text-sm">
+              <thead>
+                <tr className="border-b border-slate-200 text-left text-xs uppercase tracking-wide text-slate-500">
+                  <th className="px-4 py-2 font-medium">Number</th>
+                  <th className="px-4 py-2 font-medium">Customer</th>
+                  <th className="px-4 py-2 font-medium">Date</th>
+                  <th className="px-4 py-2 font-medium">Status</th>
+                  <th className="px-4 py-2 text-right font-medium">Total</th>
+                </tr>
+              </thead>
+              <tbody>
+                {recent.slice(0, 10).map((d) => {
+                  const currency = getCurrency(d.currency);
+                  return (
+                    <tr
+                      key={d.id}
+                      className="border-b border-slate-100 last:border-0 hover:bg-slate-50"
+                    >
+                      <td className="px-4 py-2.5">
+                        <Link
+                          href={`/documents/${d.id}`}
+                          className="font-medium text-slate-900 hover:underline"
+                        >
+                          {d.number}
+                        </Link>
+                      </td>
+                      <td className="px-4 py-2.5 text-slate-600">
+                        {d.customerName}
+                      </td>
+                      <td className="px-4 py-2.5 text-slate-500">
+                        {new Date(d.issueDate).toLocaleDateString("en-IN")}
+                      </td>
+                      <td className="px-4 py-2.5">
+                        <StatusBadge status={d.status} />
+                      </td>
+                      <td className="px-4 py-2.5 text-right font-medium whitespace-nowrap text-slate-900">
+                        {formatMoney(
+                          Math.round(Number(d.total) * 10 ** currency.decimals),
+                          currency,
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
         )}
       </div>
     </div>

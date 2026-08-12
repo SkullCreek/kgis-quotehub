@@ -81,30 +81,32 @@ export function DocumentActions({
 
   return (
     <div className="no-print space-y-2">
-      <div className="flex flex-wrap items-center gap-2">
-        <h1 className="text-lg font-semibold text-slate-900">{number}</h1>
+      <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+        <div className="flex items-center gap-3">
+          <h1 className="text-lg font-semibold text-slate-900">{number}</h1>
 
-        <div className="w-36">
-          <Select
-            value={status}
-            onChange={(e) => changeStatus(e.target.value)}
-            disabled={pending}
-          >
-            {STATUSES[type].map((s) => (
-              <option key={s.value} value={s.value}>
-                {s.label}
-              </option>
-            ))}
-          </Select>
+          <div className="w-36">
+            <Select
+              value={status}
+              onChange={(e) => changeStatus(e.target.value)}
+              disabled={pending}
+            >
+              {STATUSES[type].map((s) => (
+                <option key={s.value} value={s.value}>
+                  {s.label}
+                </option>
+              ))}
+            </Select>
+          </div>
         </div>
 
-        <div className="ml-auto flex flex-wrap gap-2">
-          <Button variant="primary" onClick={() => window.print()}>
+        <div className="sm:ml-auto flex flex-wrap gap-2">
+          <Button variant="primary" onClick={() => window.print()} className="w-full sm:w-auto">
             Print / Save PDF
           </Button>
 
           {type === "quotation" && !convertedToId ? (
-            <Button variant="secondary" onClick={convert} disabled={pending}>
+            <Button variant="secondary" onClick={convert} disabled={pending} className="w-full sm:w-auto">
               Convert to invoice
             </Button>
           ) : null}
@@ -112,7 +114,7 @@ export function DocumentActions({
           {convertedToId ? (
             <Link
               href={`/documents/${convertedToId}`}
-              className="rounded-lg border border-emerald-300 bg-emerald-50 px-3.5 py-2 text-sm font-medium text-emerald-700 transition hover:bg-emerald-100"
+              className="rounded-lg border border-emerald-300 bg-emerald-50 px-3.5 py-2 text-sm font-medium text-emerald-700 transition hover:bg-emerald-100 text-center w-full sm:w-auto"
             >
               View invoice
             </Link>
@@ -120,12 +122,12 @@ export function DocumentActions({
 
           <Link
             href={`/documents/${id}/edit`}
-            className="rounded-lg border border-slate-300 bg-white px-3.5 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
+            className="rounded-lg border border-slate-300 bg-white px-3.5 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50 text-center w-full sm:w-auto"
           >
             Edit
           </Link>
 
-          <Button variant="danger" onClick={remove} disabled={pending}>
+          <Button variant="danger" onClick={remove} disabled={pending} className="w-full sm:w-auto">
             Delete
           </Button>
         </div>

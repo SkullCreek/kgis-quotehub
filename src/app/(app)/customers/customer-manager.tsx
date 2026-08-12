@@ -165,15 +165,15 @@ export function CustomerManager({ initial }: { initial: Customer[] }) {
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-wrap items-center gap-3">
+      <div className="flex flex-col sm:flex-row sm:items-center gap-3">
         <h1 className="text-xl font-semibold text-slate-900">Customers</h1>
         <input
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Search name, GSTIN, phone…"
-          className="w-64 rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-sm outline-none focus:border-slate-900 focus:ring-1 focus:ring-slate-900"
+          className="w-full sm:w-64 rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-sm outline-none focus:border-slate-900 focus:ring-1 focus:ring-slate-900"
         />
-        <Button className="ml-auto" onClick={() => setDraft({ ...BLANK })}>
+        <Button className="w-full sm:w-auto sm:ml-auto" onClick={() => setDraft({ ...BLANK })}>
           Add customer
         </Button>
       </div>
@@ -189,67 +189,69 @@ export function CustomerManager({ initial }: { initial: Customer[] }) {
             }
           />
         ) : (
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-slate-200 text-left text-xs uppercase tracking-wide text-slate-500">
-                <th className="px-4 py-2 font-medium">Name</th>
-                <th className="px-4 py-2 font-medium">GSTIN</th>
-                <th className="px-4 py-2 font-medium">Place</th>
-                <th className="px-4 py-2 font-medium">Contact</th>
-                <th className="px-4 py-2" />
-              </tr>
-            </thead>
-            <tbody>
-              {filtered.map((c) => (
-                <tr
-                  key={c.id}
-                  className="border-b border-slate-100 last:border-0 hover:bg-slate-50"
-                >
-                  <td className="px-4 py-2.5 font-medium text-slate-900">
-                    {c.name}
-                    {c.contactPerson ? (
-                      <span className="block text-xs font-normal text-slate-500">
-                        {c.contactPerson}
-                      </span>
-                    ) : null}
-                  </td>
-                  <td className="px-4 py-2.5 font-mono text-xs text-slate-600">
-                    {c.gstin ?? "—"}
-                  </td>
-                  <td className="px-4 py-2.5 text-slate-600">
-                    {[c.city, c.state].filter(Boolean).join(", ") || "—"}
-                    {isExport(c.country) ? (
-                      <span className="ml-1.5 rounded bg-indigo-50 px-1.5 py-0.5 text-[10px] font-medium text-indigo-700">
-                        {c.country} · {c.currency}
-                      </span>
-                    ) : c.stateCode &&
-                      c.stateCode !== COMPANY.address.stateCode ? (
-                      <span className="ml-1.5 rounded bg-amber-50 px-1.5 py-0.5 text-[10px] font-medium text-amber-700">
-                        IGST
-                      </span>
-                    ) : null}
-                  </td>
-                  <td className="px-4 py-2.5 text-slate-600">
-                    {c.phone ?? c.email ?? "—"}
-                  </td>
-                  <td className="px-4 py-2.5 text-right whitespace-nowrap">
-                    <button
-                      onClick={() => setDraft(c)}
-                      className="rounded px-2 py-1 text-xs font-medium text-slate-600 hover:bg-slate-100"
-                    >
-                      Edit
-                    </button>
-                    <button
-                      onClick={() => remove(c.id, c.name)}
-                      className="rounded px-2 py-1 text-xs font-medium text-red-600 hover:bg-red-50"
-                    >
-                      Delete
-                    </button>
-                  </td>
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-[650px] text-sm">
+              <thead>
+                <tr className="border-b border-slate-200 text-left text-xs uppercase tracking-wide text-slate-500">
+                  <th className="px-4 py-2 font-medium">Name</th>
+                  <th className="px-4 py-2 font-medium">GSTIN</th>
+                  <th className="px-4 py-2 font-medium">Place</th>
+                  <th className="px-4 py-2 font-medium">Contact</th>
+                  <th className="px-4 py-2" />
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {filtered.map((c) => (
+                  <tr
+                    key={c.id}
+                    className="border-b border-slate-100 last:border-0 hover:bg-slate-50"
+                  >
+                    <td className="px-4 py-2.5 font-medium text-slate-900">
+                      {c.name}
+                      {c.contactPerson ? (
+                        <span className="block text-xs font-normal text-slate-500">
+                          {c.contactPerson}
+                        </span>
+                      ) : null}
+                    </td>
+                    <td className="px-4 py-2.5 font-mono text-xs text-slate-600">
+                      {c.gstin ?? "—"}
+                    </td>
+                    <td className="px-4 py-2.5 text-slate-600">
+                      {[c.city, c.state].filter(Boolean).join(", ") || "—"}
+                      {isExport(c.country) ? (
+                        <span className="ml-1.5 rounded bg-indigo-50 px-1.5 py-0.5 text-[10px] font-medium text-indigo-700">
+                          {c.country} · {c.currency}
+                        </span>
+                      ) : c.stateCode &&
+                        c.stateCode !== COMPANY.address.stateCode ? (
+                        <span className="ml-1.5 rounded bg-amber-50 px-1.5 py-0.5 text-[10px] font-medium text-amber-700">
+                          IGST
+                        </span>
+                      ) : null}
+                    </td>
+                    <td className="px-4 py-2.5 text-slate-600">
+                      {c.phone ?? c.email ?? "—"}
+                    </td>
+                    <td className="px-4 py-2.5 text-right whitespace-nowrap">
+                      <button
+                        onClick={() => setDraft(c)}
+                        className="rounded px-2 py-1 text-xs font-medium text-slate-600 hover:bg-slate-100"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        onClick={() => remove(c.id, c.name)}
+                        className="rounded px-2 py-1 text-xs font-medium text-red-600 hover:bg-red-50"
+                      >
+                        Delete
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
       </div>
 
@@ -285,7 +287,7 @@ export function CustomerManager({ initial }: { initial: Customer[] }) {
               />
             </Field>
 
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <Field label="Contact person">
                 <TextInput
                   value={draft.contactPerson ?? ""}
@@ -309,7 +311,7 @@ export function CustomerManager({ initial }: { initial: Customer[] }) {
               />
             </Field>
 
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <Field
                 label="Country"
                 hint={
@@ -377,7 +379,7 @@ export function CustomerManager({ initial }: { initial: Customer[] }) {
               />
             </Field>
 
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <Field label="City">
                 <TextInput
                   value={draft.city ?? ""}

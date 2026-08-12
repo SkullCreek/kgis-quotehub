@@ -26,7 +26,9 @@ export default async function DocumentPage({
         status={doc.status}
         convertedToId={doc.convertedToId}
       />
-      <PrintSheet doc={doc} />
+      <div className="overflow-x-auto w-full py-2">
+        <PrintSheet doc={doc} />
+      </div>
     </div>
   );
 }

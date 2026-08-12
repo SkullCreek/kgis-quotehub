@@ -123,7 +123,7 @@ export function Drawer({
         </div>
         <div className="flex-1 overflow-y-auto px-5 py-4">{children}</div>
         {footer ? (
-          <div className="flex justify-end gap-2 border-t border-slate-200 px-5 py-3">
+          <div className="flex flex-col-reverse sm:flex-row sm:justify-end gap-2 border-t border-slate-200 px-5 py-3">
             {footer}
           </div>
         ) : null}

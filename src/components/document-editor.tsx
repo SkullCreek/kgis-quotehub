@@ -268,23 +268,25 @@ export function DocumentEditor({
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-wrap items-center gap-3">
-        <h1 className="text-xl font-semibold text-slate-900">
-          {values.id ? "Edit" : "New"} {isInvoice ? "invoice" : "quotation"}
-        </h1>
-        {isExportDoc ? (
-          <span className="rounded-full bg-indigo-50 px-2.5 py-0.5 text-xs font-medium text-indigo-700">
-            Export · zero-rated under GST
-          </span>
-        ) : null}
-        <div className="ml-auto flex gap-2">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div className="flex flex-wrap items-center gap-3">
+          <h1 className="text-xl font-semibold text-slate-900">
+            {values.id ? "Edit" : "New"} {isInvoice ? "invoice" : "quotation"}
+          </h1>
+          {isExportDoc ? (
+            <span className="rounded-full bg-indigo-50 px-2.5 py-0.5 text-xs font-medium text-indigo-700">
+              Export · zero-rated under GST
+            </span>
+          ) : null}
+        </div>
+        <div className="flex gap-2 w-full sm:w-auto">
           <Link
             href={isInvoice ? "/invoices" : "/quotations"}
-            className="rounded-lg border border-slate-300 bg-white px-3.5 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
+            className="flex-1 sm:flex-none text-center rounded-lg border border-slate-300 bg-white px-3.5 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
           >
             Cancel
           </Link>
-          <Button onClick={submit} disabled={pending}>
+          <Button onClick={submit} disabled={pending} className="flex-1 sm:flex-none">
             {pending ? "Saving…" : "Save"}
           </Button>
         </div>
@@ -328,7 +330,7 @@ export function DocumentEditor({
             </Select>
           </Field>
 
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <Field label="Currency">
               <Select
                 value={values.currency}
@@ -351,7 +353,7 @@ export function DocumentEditor({
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-3 lg:col-span-2">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 lg:col-span-2">
           <Field label="Issue date">
             <TextInput
               type="date"

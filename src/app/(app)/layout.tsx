@@ -10,23 +10,23 @@ export default function AppLayout({
 }) {
   return (
     <>
-      <header className="no-print sticky top-0 z-20 border-b border-slate-200 bg-white">
-        <div className="mx-auto flex max-w-6xl items-center gap-4 px-4 py-3">
-          <Link href="/" className="flex items-center gap-2.5">
+      <header className="no-print sticky top-0 z-20 border-b border-slate-200 bg-white shadow-xs">
+        <div className="mx-auto flex flex-col gap-3 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+          <Link href="/" className="flex items-center gap-2.5 shrink-0">
             {COMPANY.logoPath ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img
                 src={COMPANY.logoPath}
                 alt=""
-                className="h-8 w-auto object-contain"
+                className="h-7 sm:h-8 w-auto object-contain"
               />
             ) : null}
-            <span className="text-sm font-semibold tracking-tight text-slate-900">
+            <span className="text-sm font-semibold tracking-tight text-slate-900 truncate max-w-[200px] sm:max-w-none">
               {COMPANY.name}
             </span>
           </Link>
 
-          <nav className="ml-auto flex items-center gap-1">
+          <nav className="flex items-center gap-1 overflow-x-auto pb-1 sm:pb-0 scrollbar-none text-xs sm:text-sm">
             <NavLink href="/">Dashboard</NavLink>
             <NavLink href="/quotations">Quotations</NavLink>
             <NavLink href="/invoices">Invoices</NavLink>
@@ -37,12 +37,12 @@ export default function AppLayout({
         </div>
       </header>
 
-      <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-6">
+      <main className="mx-auto w-full max-w-6xl flex-1 px-3 sm:px-4 py-4 sm:py-6">
         {children}
       </main>
 
       <footer className="no-print border-t border-slate-200 bg-white py-4">
-        <div className="mx-auto max-w-6xl px-4 text-xs text-slate-400">
+        <div className="mx-auto max-w-6xl px-4 text-xs text-slate-400 text-center sm:text-left">
           {COMPANY.name} · GSTIN {COMPANY.gstin}
         </div>
       </footer>
