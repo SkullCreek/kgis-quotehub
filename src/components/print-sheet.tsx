@@ -437,28 +437,24 @@ export function PrintSheet({ doc }: { doc: FullDocument }) {
                   money={money}
                 />
               ) : null}
-              <Total
-                label="Taxable value"
-                value={m(doc.taxableValue)}
-                money={money}
-                bordered
-              />
-
-              {isExport ? (
-                <tr>
-                  <td className="px-2 py-1 text-slate-600">GST</td>
-                  <td className="px-2 py-1 text-right font-medium">
-                    Zero-rated
-                  </td>
-                </tr>
-              ) : isIgst ? (
-                <Total label="IGST" value={m(doc.igst)} money={money} />
-              ) : (
+              {!isExport ? (
                 <>
-                  <Total label="CGST" value={m(doc.cgst)} money={money} />
-                  <Total label="SGST" value={m(doc.sgst)} money={money} />
+                  <Total
+                    label="Taxable value"
+                    value={m(doc.taxableValue)}
+                    money={money}
+                    bordered
+                  />
+                  {isIgst ? (
+                    <Total label="IGST" value={m(doc.igst)} money={money} />
+                  ) : (
+                    <>
+                      <Total label="CGST" value={m(doc.cgst)} money={money} />
+                      <Total label="SGST" value={m(doc.sgst)} money={money} />
+                    </>
+                  )}
                 </>
-              )}
+              ) : null}
 
               {doc.parsedCustomTaxes.map((t, i) => (
                 <Total
