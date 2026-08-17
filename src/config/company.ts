@@ -70,7 +70,6 @@ export const COMPANY = {
     common: [
       "PAYMENT — 100% advance against Proforma Invoice.",
       "DELIVERY — 3-4 weeks.",
-      "FREIGHT — Freight and packaging cost extra, after receipt of all parts.",
       "Subject to Vapi jurisdiction.",
     ],
     quotation: [

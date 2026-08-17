@@ -27,9 +27,7 @@ export function PrintSheet({ doc }: { doc: FullDocument }) {
     formatMoney(minor, currency, withSymbol);
 
   const heading = isProforma
-    ? isExport
-      ? "EXPORT PROFORMA INVOICE"
-      : "PROFORMA INVOICE"
+    ? "PROFORMA INVOICE"
     : isInvoice
       ? isExport
         ? "EXPORT INVOICE"
@@ -157,14 +155,16 @@ export function PrintSheet({ doc }: { doc: FullDocument }) {
               {[c.phone, c.email].filter(Boolean).join(" · ")}
             </div>
           ) : null}
-          <div className="mt-1.5 border-t border-slate-200 pt-1.5">
-            <span className="text-slate-500">
-              {isExport ? "Buyer Tax ID: " : "GSTIN: "}
-            </span>
-            <span className="font-mono font-semibold">
-              {c.gstin ?? (isExport ? "Not applicable" : "Unregistered")}
-            </span>
-          </div>
+          {isExport && !c.gstin ? null : (
+            <div className="mt-1.5 border-t border-slate-200 pt-1.5">
+              <span className="text-slate-500">
+                {isExport ? "Buyer Tax ID: " : "GSTIN: "}
+              </span>
+              <span className="font-mono font-semibold">
+                {c.gstin ?? (isExport ? "Not applicable" : "Unregistered")}
+              </span>
+            </div>
+          )}
           <div>
             <span className="text-slate-500">Place of supply: </span>
             {isExport
@@ -407,38 +407,7 @@ export function PrintSheet({ doc }: { doc: FullDocument }) {
                 </tbody>
               </table>
             </>
-          ) : (
-            <div className="rounded border border-indigo-200 bg-indigo-50 p-2 text-[10px] text-indigo-950 space-y-1">
-              <div className="font-semibold uppercase tracking-widest text-[9px] text-indigo-800">
-                Export Declaration &amp; Customs Compliance
-              </div>
-              <p>
-                {doc.exportScheme === "paid"
-                  ? "Supply meant for export on payment of Integrated Tax (IGST) under Section 16 of the IGST Act, 2017."
-                  : `Supply meant for export under Letter of Undertaking (LUT) without payment of integrated tax under Section 16 of the IGST Act, 2017.${
-                      doc.exportLutNumber || COMPANY.defaultLutNumber
-                        ? ` (LUT Ref: ${doc.exportLutNumber || COMPANY.defaultLutNumber}${
-                            doc.exportLutDate ? ` dated ${formatDate(doc.exportLutDate)}` : ""
-                          })`
-                        : ""
-                    }`}
-              </p>
-              {doc.portOfLoading || doc.incoterms || doc.totalPackages || doc.netWeight ? (
-                <div className="mt-1 grid grid-cols-2 gap-x-2 gap-y-0.5 border-t border-indigo-200/60 pt-1 text-[9.5px] font-mono text-indigo-900">
-                  {doc.incoterms ? <div>Terms: <b>{doc.incoterms}</b></div> : null}
-                  {doc.modeOfShipment ? <div>Shipment: {doc.modeOfShipment}</div> : null}
-                  {doc.portOfLoading ? <div>Port Loading: {doc.portOfLoading}</div> : null}
-                  {doc.portOfDischarge ? <div>Port Discharge: {doc.portOfDischarge}</div> : null}
-                  {doc.totalPackages ? <div>Packages: {doc.totalPackages}</div> : null}
-                  {doc.netWeight || doc.grossWeight ? (
-                    <div>
-                      Weight: N: {doc.netWeight || "—"} / G: {doc.grossWeight || "—"}
-                    </div>
-                  ) : null}
-                </div>
-              ) : null}
-            </div>
-          )}
+          ) : null}
 
           <div className="mt-3 rounded border border-slate-300 p-2">
             <div className="text-[9px] font-semibold uppercase tracking-widest text-slate-500">
