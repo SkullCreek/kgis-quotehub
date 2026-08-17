@@ -278,36 +278,13 @@ export function CustomerManager({ initial }: { initial: Customer[] }) {
               </p>
             ) : null}
 
-            <Field label="Business name" error={errors.name?.[0]}>
+            <Field label="Business name *" error={errors.name?.[0]}>
               <TextInput
                 value={draft.name ?? ""}
                 onChange={(e) => set("name", e.target.value)}
+                placeholder="e.g. Acme Corporation"
                 invalid={!!errors.name}
                 autoFocus
-              />
-            </Field>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <Field label="Contact person">
-                <TextInput
-                  value={draft.contactPerson ?? ""}
-                  onChange={(e) => set("contactPerson", e.target.value)}
-                />
-              </Field>
-              <Field label="Phone">
-                <TextInput
-                  value={draft.phone ?? ""}
-                  onChange={(e) => set("phone", e.target.value)}
-                />
-              </Field>
-            </div>
-
-            <Field label="Email" error={errors.email?.[0]}>
-              <TextInput
-                type="email"
-                value={draft.email ?? ""}
-                onChange={(e) => set("email", e.target.value)}
-                invalid={!!errors.email}
               />
             </Field>
 
@@ -316,8 +293,8 @@ export function CustomerManager({ initial }: { initial: Customer[] }) {
                 label="Country"
                 hint={
                   overseas
-                    ? "Outside India — documents will be zero-rated exports."
-                    : "Domestic sale, GST applies."
+                    ? "Export customer — GSTIN & domestic state fields are hidden."
+                    : "Domestic customer."
                 }
               >
                 <TextInput
@@ -328,7 +305,7 @@ export function CustomerManager({ initial }: { initial: Customer[] }) {
               </Field>
               <Field
                 label="Default currency"
-                hint="Used on new documents for this customer."
+                hint="Used on new documents."
               >
                 <Select
                   value={draft.currency ?? "INR"}
@@ -349,11 +326,35 @@ export function CustomerManager({ initial }: { initial: Customer[] }) {
               ))}
             </datalist>
 
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <Field label="Contact person (Optional)">
+                <TextInput
+                  value={draft.contactPerson ?? ""}
+                  onChange={(e) => set("contactPerson", e.target.value)}
+                />
+              </Field>
+              <Field label="Phone (Optional)">
+                <TextInput
+                  value={draft.phone ?? ""}
+                  onChange={(e) => set("phone", e.target.value)}
+                />
+              </Field>
+            </div>
+
+            <Field label="Email (Optional)" error={errors.email?.[0]}>
+              <TextInput
+                type="email"
+                value={draft.email ?? ""}
+                onChange={(e) => set("email", e.target.value)}
+                invalid={!!errors.email}
+              />
+            </Field>
+
             {!overseas ? (
               <Field
-                label="GSTIN"
+                label="GSTIN (Optional)"
                 error={errors.gstin?.[0]}
-                hint="Leave blank for unregistered customers. The state fills in automatically."
+                hint="Leave blank for unregistered customers."
               >
                 <TextInput
                   value={draft.gstin ?? ""}
@@ -366,13 +367,13 @@ export function CustomerManager({ initial }: { initial: Customer[] }) {
               </Field>
             ) : null}
 
-            <Field label="Address line 1">
+            <Field label="Address line 1 (Optional)">
               <TextInput
                 value={draft.addressLine1 ?? ""}
                 onChange={(e) => set("addressLine1", e.target.value)}
               />
             </Field>
-            <Field label="Address line 2">
+            <Field label="Address line 2 (Optional)">
               <TextInput
                 value={draft.addressLine2 ?? ""}
                 onChange={(e) => set("addressLine2", e.target.value)}
@@ -380,23 +381,22 @@ export function CustomerManager({ initial }: { initial: Customer[] }) {
             </Field>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <Field label="City">
+              <Field label="City (Optional)">
                 <TextInput
                   value={draft.city ?? ""}
                   onChange={(e) => set("city", e.target.value)}
                 />
               </Field>
-              <Field label="PIN code">
+              <Field label="PIN / Postal code (Optional)">
                 <TextInput
                   value={draft.pincode ?? ""}
                   onChange={(e) => set("pincode", e.target.value)}
-                  maxLength={6}
                 />
               </Field>
             </div>
 
             {overseas ? (
-              <Field label="State / province">
+              <Field label="State / Province (Optional)">
                 <TextInput
                   value={draft.state ?? ""}
                   onChange={(e) => set("state", e.target.value)}
@@ -404,7 +404,7 @@ export function CustomerManager({ initial }: { initial: Customer[] }) {
               </Field>
             ) : (
               <Field
-                label="State (place of supply)"
+                label="State (place of supply) (Optional)"
                 hint={
                   interState
                     ? `Different from ${COMPANY.address.state}, so IGST will be charged.`
@@ -425,7 +425,7 @@ export function CustomerManager({ initial }: { initial: Customer[] }) {
               </Field>
             )}
 
-            <Field label="Internal notes" hint="Never printed on documents.">
+            <Field label="Internal notes (Optional)" hint="Never printed on documents.">
               <TextArea
                 rows={3}
                 value={draft.notes ?? ""}

@@ -65,13 +65,14 @@ export async function saveCustomer(
     state = STATE_CODES.find((s) => s.code === stateCode)?.name ?? null;
   }
 
-  // Indian state codes are meaningless for an overseas buyer and would
-  // otherwise make an export look like a domestic inter-state sale.
+  // Indian state codes and GSTIN are meaningless for an overseas buyer.
+  let gstin = value.gstin ?? null;
   if (isExport(value.country)) {
     stateCode = null;
+    gstin = null;
   }
 
-  const payload = { ...value, stateCode, state };
+  const payload = { ...value, gstin, stateCode, state };
   delete (payload as { id?: number }).id;
 
   try {

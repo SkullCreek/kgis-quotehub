@@ -25,29 +25,22 @@ export const customerSchema = z.object({
     .string()
     .trim()
     .transform((v) => v.toUpperCase())
-    .refine((v) => v === "" || GSTIN_REGEX.test(v), {
-      message: "That does not look like a valid 15-character GSTIN.",
-    })
     .transform((v) => (v === "" ? null : v))
     .nullable()
     .optional(),
   phone: optionalText,
-  email: z
-    .string()
-    .trim()
-    .refine((v) => v === "" || z.string().email().safeParse(v).success, {
-      message: "Enter a valid email address.",
-    })
-    .transform((v) => (v === "" ? null : v))
-    .nullable()
-    .optional(),
+  email: optionalText,
   addressLine1: optionalText,
   addressLine2: optionalText,
   city: optionalText,
   state: optionalText,
   stateCode: optionalText,
   pincode: optionalText,
-  country: z.string().trim().min(1).default("India"),
+  country: z
+    .string()
+    .trim()
+    .transform((v) => (v === "" ? "India" : v))
+    .default("India"),
   currency: currencyCode.default("INR"),
   notes: optionalText,
 });
