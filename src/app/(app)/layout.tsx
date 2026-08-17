@@ -29,6 +29,7 @@ export default function AppLayout({
           <nav className="flex items-center gap-1 overflow-x-auto pb-1 sm:pb-0 scrollbar-none text-xs sm:text-sm">
             <NavLink href="/">Dashboard</NavLink>
             <NavLink href="/quotations">Quotations</NavLink>
+            <NavLink href="/proformas">Proforma Invoices</NavLink>
             <NavLink href="/invoices">Invoices</NavLink>
             <NavLink href="/customers">Customers</NavLink>
             <NavLink href="/products">Products</NavLink>

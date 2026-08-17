@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import {
   convertToInvoice,
+  convertToProforma,
   deleteDocument,
   updateDocumentStatus,
 } from "@/lib/actions/documents";
@@ -12,6 +13,13 @@ import { Button, Select } from "@/components/ui";
 
 const STATUSES: Record<string, { value: string; label: string }[]> = {
   quotation: [
+    { value: "draft", label: "Draft" },
+    { value: "sent", label: "Sent" },
+    { value: "accepted", label: "Accepted" },
+    { value: "rejected", label: "Rejected" },
+    { value: "cancelled", label: "Cancelled" },
+  ],
+  proforma: [
     { value: "draft", label: "Draft" },
     { value: "sent", label: "Sent" },
     { value: "accepted", label: "Accepted" },
@@ -34,7 +42,7 @@ export function DocumentActions({
   convertedToId,
 }: {
   id: number;
-  type: "quotation" | "invoice";
+  type: "quotation" | "invoice" | "proforma";
   number: string;
   status: string;
   convertedToId: number | null;
@@ -54,7 +62,19 @@ export function DocumentActions({
     });
   }
 
-  function convert() {
+  function convertToPI() {
+    startTransition(async () => {
+      const result = await convertToProforma(id);
+      if (!result.ok) {
+        setMessage(result.error);
+        return;
+      }
+      router.push(`/documents/${result.data.id}`);
+      router.refresh();
+    });
+  }
+
+  function convertToTaxInvoice() {
     startTransition(async () => {
       const result = await convertToInvoice(id);
       if (!result.ok) {
@@ -74,7 +94,13 @@ export function DocumentActions({
         setMessage(result.error);
         return;
       }
-      router.push(type === "invoice" ? "/invoices" : "/quotations");
+      router.push(
+        type === "invoice"
+          ? "/invoices"
+          : type === "proforma"
+            ? "/proformas"
+            : "/quotations",
+      );
       router.refresh();
     });
   }
@@ -91,7 +117,7 @@ export function DocumentActions({
               onChange={(e) => changeStatus(e.target.value)}
               disabled={pending}
             >
-              {STATUSES[type].map((s) => (
+              {(STATUSES[type] ?? STATUSES.quotation).map((s) => (
                 <option key={s.value} value={s.value}>
                   {s.label}
                 </option>
@@ -106,7 +132,18 @@ export function DocumentActions({
           </Button>
 
           {type === "quotation" && !convertedToId ? (
-            <Button variant="secondary" onClick={convert} disabled={pending} className="w-full sm:w-auto">
+            <>
+              <Button variant="secondary" onClick={convertToPI} disabled={pending} className="w-full sm:w-auto">
+                Convert to proforma
+              </Button>
+              <Button variant="secondary" onClick={convertToTaxInvoice} disabled={pending} className="w-full sm:w-auto">
+                Convert to invoice
+              </Button>
+            </>
+          ) : null}
+
+          {type === "proforma" && !convertedToId ? (
+            <Button variant="secondary" onClick={convertToTaxInvoice} disabled={pending} className="w-full sm:w-auto">
               Convert to invoice
             </Button>
           ) : null}
@@ -116,7 +153,7 @@ export function DocumentActions({
               href={`/documents/${convertedToId}`}
               className="rounded-lg border border-emerald-300 bg-emerald-50 px-3.5 py-2 text-sm font-medium text-emerald-700 transition hover:bg-emerald-100 text-center w-full sm:w-auto"
             >
-              View invoice
+              View converted document
             </Link>
           ) : null}
 

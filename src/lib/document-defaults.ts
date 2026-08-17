@@ -49,11 +49,51 @@ export interface EditorValues {
   validUntil: string;
   poNumber: string;
   notes: string;
+
+  // Export compliance & shipping details
+  exportScheme: "lut" | "paid";
+  exportLutNumber: string;
+  exportLutDate: string;
+  portOfLoading: string;
+  portOfDischarge: string;
+  incoterms: string;
+  modeOfShipment: string;
+  countryOfOrigin: string;
+  totalPackages: string;
+  netWeight: string;
+  grossWeight: string;
+
   discountPercent: string;
   shipping: string;
   customTaxes: EditorCustomTax[];
   sections: EditorSection[];
 }
+
+export const INCOTERMS_PRESETS = [
+  "FOB (Free on Board)",
+  "CIF (Cost, Insurance & Freight)",
+  "CFR (Cost & Freight)",
+  "EXW (Ex Works)",
+  "FCA (Free Carrier)",
+  "CIP (Carriage & Insurance Paid)",
+  "DAP (Delivered at Place)",
+  "DDP (Delivered Duty Paid)",
+];
+
+export const SHIPMENT_MODES = [
+  "Sea Freight",
+  "Air Freight",
+  "Road Transport",
+  "Courier / Express Parcel",
+];
+
+export const INDIAN_PORTS = [
+  "Nhava Sheva (INNSA1)",
+  "Mundra Port (INMUN1)",
+  "Hazira Port (INHZA1)",
+  "ICD Vapi (INVAP6)",
+  "Air Cargo Complex Mumbai (INBOM4)",
+];
 
 export const UNITS = [
   "Nos",

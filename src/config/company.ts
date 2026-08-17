@@ -30,6 +30,11 @@ export const COMPANY = {
   pan: "ELLPB8167B",
   /** Importer Exporter Code, printed on export documents. */
   iec: "ELLPB8167B",
+  /** Authorized Dealer Code (7 digits) issued by bank and registered with Customs. */
+  adCode: "0361712",
+  /** Default Letter of Undertaking (LUT) reference number for exports without IGST. */
+  defaultLutNumber: "",
+  defaultLutDate: "",
 
   phone: "+91-9998726601 / 9724485878",
   email: "",
@@ -59,8 +64,7 @@ export const COMPANY = {
 
   /**
    * Terms printed at the bottom of the document. `common` appears on
-   * everything; the rest is added according to what is being printed,
-   * so an invoice never carries quotation wording.
+   * everything; the rest is added according to what is being printed.
    */
   terms: {
     common: [
@@ -74,6 +78,11 @@ export const COMPANY = {
       "SUITABILITY — Please confirm suitability before placing the order.",
       "CANCELLATION — Order once placed will not be cancelled under any circumstances.",
       "ORDER REFERENCE — Please mention this quotation no. in your purchase order.",
+    ],
+    proforma: [
+      "PURPOSE — This Proforma Invoice is issued for customs clearance, import license, and LC opening.",
+      "REFERENCE — Please mention this Proforma Invoice no. in all bank remittances and orders.",
+      "INCOTERMS — Delivery and price terms are as specified on this invoice.",
     ],
     invoice: [
       "Please mention the invoice no. in all correspondence and payments.",
@@ -91,11 +100,12 @@ export const COMPANY = {
   quotationValidityDays: 15,
 
   /**
-   * Document numbering, producing e.g. QTN-2026-KGIS010.
+   * Document numbering, producing e.g. QTN-2026-KGIS010, PI-2026-KGIS010.
    * Pattern: {prefix}-{year}-{series}{sequence}
    */
   numbering: {
     quotationPrefix: "QTN",
+    proformaPrefix: "PI",
     invoicePrefix: "INV",
     series: "KGIS",
     /** Change this each year. The sequence keeps counting up regardless. */

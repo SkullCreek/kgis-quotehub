@@ -86,7 +86,7 @@ export const customTaxSchema = z.object({
 
 export const documentSchema = z.object({
   id: z.coerce.number().int().positive().optional(),
-  type: z.enum(["quotation", "invoice"]),
+  type: z.enum(["quotation", "invoice", "proforma"]),
   number: z.string().trim().min(1, "Document number is required."),
   status: z
     .enum(["draft", "sent", "accepted", "rejected", "paid", "cancelled"])
@@ -101,6 +101,20 @@ export const documentSchema = z.object({
   validUntil: z.string().nullable().optional(),
   poNumber: optionalText,
   notes: optionalText,
+
+  // Export compliance & shipping details (Indian Customs & Sec 16 IGST)
+  exportScheme: z.enum(["lut", "paid"]).default("lut").optional(),
+  exportLutNumber: optionalText,
+  exportLutDate: optionalText,
+  portOfLoading: optionalText,
+  portOfDischarge: optionalText,
+  incoterms: optionalText,
+  modeOfShipment: optionalText,
+  countryOfOrigin: optionalText,
+  totalPackages: optionalText,
+  netWeight: optionalText,
+  grossWeight: optionalText,
+
   discountPercent: z.coerce.number().min(0).max(100).default(0),
   shipping: z.coerce.number().min(0).default(0),
   customTaxes: z.array(customTaxSchema).default([]),

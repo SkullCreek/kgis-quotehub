@@ -44,6 +44,19 @@ export default async function EditDocumentPage({
     validUntil: toDateInput(doc.validUntil),
     poNumber: doc.poNumber ?? "",
     notes: doc.notes ?? "",
+
+    exportScheme: (doc.exportScheme as "lut" | "paid") ?? "lut",
+    exportLutNumber: doc.exportLutNumber ?? "",
+    exportLutDate: doc.exportLutDate ?? "",
+    portOfLoading: doc.portOfLoading ?? "",
+    portOfDischarge: doc.portOfDischarge ?? "",
+    incoterms: doc.incoterms ?? "",
+    modeOfShipment: doc.modeOfShipment ?? "",
+    countryOfOrigin: doc.countryOfOrigin ?? "India",
+    totalPackages: doc.totalPackages ?? "",
+    netWeight: doc.netWeight ?? "",
+    grossWeight: doc.grossWeight ?? "",
+
     discountPercent: numStr(doc.discountPercent),
     shipping: numStr(doc.shipping),
     customTaxes: doc.parsedCustomTaxes.map((t) => ({

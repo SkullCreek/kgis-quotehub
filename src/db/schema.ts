@@ -10,7 +10,11 @@ import {
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 
-export const docTypeEnum = pgEnum("doc_type", ["quotation", "invoice"]);
+export const docTypeEnum = pgEnum("doc_type", [
+  "quotation",
+  "invoice",
+  "proforma",
+]);
 export const docStatusEnum = pgEnum("doc_status", [
   "draft",
   "sent",
@@ -94,6 +98,19 @@ export const documents = pgTable(
     /** Free-text machine or project reference, printed in the header. */
     machineRef: text("machine_ref"),
 
+    /** Export compliance & logistics fields (Indian Customs & GST Sec 16) */
+    exportScheme: text("export_scheme").default("lut"),
+    exportLutNumber: text("export_lut_number"),
+    exportLutDate: text("export_lut_date"),
+    portOfLoading: text("port_of_loading"),
+    portOfDischarge: text("port_of_discharge"),
+    incoterms: text("incoterms"),
+    modeOfShipment: text("mode_of_shipment"),
+    countryOfOrigin: text("country_of_origin").default("India"),
+    totalPackages: text("total_packages"),
+    netWeight: text("net_weight"),
+    grossWeight: text("gross_weight"),
+
     /**
      * Named taxes entered by hand, stored as JSON:
      * [{ "name": "VAT", "percent": 5 }]. Each is a percentage of the
@@ -128,7 +145,7 @@ export const documents = pgTable(
     roundOff: numeric("round_off", { precision: 14, scale: 2 }).notNull(),
     total: numeric("total", { precision: 14, scale: 2 }).notNull(),
 
-    /** Set when a quotation has been converted, pointing at the new invoice. */
+    /** Set when a quotation/proforma has been converted, pointing at the new document. */
     convertedToId: integer("converted_to_id"),
 
     createdAt: timestamp("created_at").defaultNow().notNull(),

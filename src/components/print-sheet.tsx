@@ -15,6 +15,7 @@ const formatDate = (d: Date | string | null) =>
 
 export function PrintSheet({ doc }: { doc: FullDocument }) {
   const isInvoice = doc.type === "invoice";
+  const isProforma = doc.type === "proforma";
   const isExport = doc.taxMode === "export";
   const isIgst = doc.taxMode === "igst";
   const c = doc.customer;
@@ -25,11 +26,15 @@ export function PrintSheet({ doc }: { doc: FullDocument }) {
   const money = (minor: number, withSymbol = true) =>
     formatMoney(minor, currency, withSymbol);
 
-  const heading = isInvoice
+  const heading = isProforma
     ? isExport
-      ? "EXPORT INVOICE"
-      : "TAX INVOICE"
-    : "QUOTATION";
+      ? "EXPORT PROFORMA INVOICE"
+      : "PROFORMA INVOICE"
+    : isInvoice
+      ? isExport
+        ? "EXPORT INVOICE"
+        : "TAX INVOICE"
+      : "QUOTATION";
 
   const total = m(doc.total);
   const roundOff = m(doc.roundOff);
@@ -64,7 +69,11 @@ export function PrintSheet({ doc }: { doc: FullDocument }) {
   );
 
   const terms = [
-    ...(isInvoice ? COMPANY.terms.invoice : COMPANY.terms.quotation),
+    ...(isProforma
+      ? COMPANY.terms.proforma
+      : isInvoice
+        ? COMPANY.terms.invoice
+        : COMPANY.terms.quotation),
     ...COMPANY.terms.common,
     ...(isExport ? COMPANY.terms.export : []),
   ];
@@ -101,6 +110,12 @@ export function PrintSheet({ doc }: { doc: FullDocument }) {
                 | IEC: <span className="font-mono">{COMPANY.iec}</span>
               </>
             ) : null}
+            {isExport && COMPANY.adCode ? (
+              <>
+                {" "}
+                | AD Code: <span className="font-mono">{COMPANY.adCode}</span>
+              </>
+            ) : null}
           </p>
           <p className="text-slate-600">
             Mobile: {COMPANY.phone}
@@ -120,7 +135,11 @@ export function PrintSheet({ doc }: { doc: FullDocument }) {
       <div className="grid grid-cols-2 gap-4">
         <div className="rounded border-l-4 border-[#8b1a1a] bg-slate-50 p-3">
           <div className="mb-1.5 text-[9px] font-semibold uppercase tracking-widest text-slate-500">
-            {isInvoice ? "Bill to" : "Quotation to"}
+            {isProforma
+              ? "Proforma Invoice to"
+              : isInvoice
+                ? "Bill to"
+                : "Quotation to"}
           </div>
           <div className="text-[12px] font-bold">{c.name}</div>
           {c.contactPerson ? (
@@ -140,7 +159,7 @@ export function PrintSheet({ doc }: { doc: FullDocument }) {
           ) : null}
           <div className="mt-1.5 border-t border-slate-200 pt-1.5">
             <span className="text-slate-500">
-              {isExport ? "Buyer tax ID: " : "GSTIN: "}
+              {isExport ? "Buyer Tax ID: " : "GSTIN: "}
             </span>
             <span className="font-mono font-semibold">
               {c.gstin ?? (isExport ? "Not applicable" : "Unregistered")}
@@ -158,14 +177,21 @@ export function PrintSheet({ doc }: { doc: FullDocument }) {
           <table className="w-full">
             <tbody>
               <Meta
-                label={isInvoice ? "Invoice no." : "Quotation no."}
+                label={
+                  isProforma
+                    ? "Proforma no."
+                    : isInvoice
+                      ? "Invoice no."
+                      : "Quotation no."
+                }
                 value={<span className="font-mono font-bold">{doc.number}</span>}
               />
               <Meta label="Date" value={formatDate(doc.issueDate)} />
               {isInvoice && doc.dueDate ? (
                 <Meta label="Payment due" value={formatDate(doc.dueDate)} />
               ) : null}
-              {!isInvoice && doc.validUntil ? (
+              {(doc.type === "quotation" || doc.type === "proforma") &&
+              doc.validUntil ? (
                 <Meta label="Valid until" value={formatDate(doc.validUntil)} />
               ) : null}
               {doc.machineRef ? (
@@ -173,6 +199,15 @@ export function PrintSheet({ doc }: { doc: FullDocument }) {
               ) : null}
               {doc.poNumber ? (
                 <Meta label="Your reference" value={doc.poNumber} />
+              ) : null}
+              {isExport && doc.incoterms ? (
+                <Meta label="Incoterms" value={<b>{doc.incoterms}</b>} />
+              ) : null}
+              {isExport && doc.portOfLoading ? (
+                <Meta label="Port of loading" value={doc.portOfLoading} />
+              ) : null}
+              {isExport && doc.portOfDischarge ? (
+                <Meta label="Port of discharge" value={doc.portOfDischarge} />
               ) : null}
               <Meta
                 label="Currency"
@@ -373,15 +408,35 @@ export function PrintSheet({ doc }: { doc: FullDocument }) {
               </table>
             </>
           ) : (
-            <div className="rounded border border-indigo-200 bg-indigo-50 p-2 text-[10px] text-indigo-900">
-              <div className="font-semibold uppercase tracking-widest">
-                Export declaration
+            <div className="rounded border border-indigo-200 bg-indigo-50 p-2 text-[10px] text-indigo-950 space-y-1">
+              <div className="font-semibold uppercase tracking-widest text-[9px] text-indigo-800">
+                Export Declaration &amp; Customs Compliance
               </div>
-              <p className="mt-1">
-                Supply meant for export — zero-rated under Section 16 of the
-                IGST Act, 2017. Goods are exported without payment of
-                integrated tax under Letter of Undertaking.
+              <p>
+                {doc.exportScheme === "paid"
+                  ? "Supply meant for export on payment of Integrated Tax (IGST) under Section 16 of the IGST Act, 2017."
+                  : `Supply meant for export under Letter of Undertaking (LUT) without payment of integrated tax under Section 16 of the IGST Act, 2017.${
+                      doc.exportLutNumber || COMPANY.defaultLutNumber
+                        ? ` (LUT Ref: ${doc.exportLutNumber || COMPANY.defaultLutNumber}${
+                            doc.exportLutDate ? ` dated ${formatDate(doc.exportLutDate)}` : ""
+                          })`
+                        : ""
+                    }`}
               </p>
+              {doc.portOfLoading || doc.incoterms || doc.totalPackages || doc.netWeight ? (
+                <div className="mt-1 grid grid-cols-2 gap-x-2 gap-y-0.5 border-t border-indigo-200/60 pt-1 text-[9.5px] font-mono text-indigo-900">
+                  {doc.incoterms ? <div>Terms: <b>{doc.incoterms}</b></div> : null}
+                  {doc.modeOfShipment ? <div>Shipment: {doc.modeOfShipment}</div> : null}
+                  {doc.portOfLoading ? <div>Port Loading: {doc.portOfLoading}</div> : null}
+                  {doc.portOfDischarge ? <div>Port Discharge: {doc.portOfDischarge}</div> : null}
+                  {doc.totalPackages ? <div>Packages: {doc.totalPackages}</div> : null}
+                  {doc.netWeight || doc.grossWeight ? (
+                    <div>
+                      Weight: N: {doc.netWeight || "—"} / G: {doc.grossWeight || "—"}
+                    </div>
+                  ) : null}
+                </div>
+              ) : null}
             </div>
           )}
 
@@ -532,9 +587,7 @@ export function PrintSheet({ doc }: { doc: FullDocument }) {
             ))}
           </ol>
 
-          {/* Stamp and signature. The image already carries the
-              "For ..." and "Authorised Signature" wording, so the text
-              fallback is only drawn when there is no image. */}
+          {/* Stamp and signature */}
           <div className="mt-auto pt-3 text-right">
             {COMPANY.signaturePath ? (
               // eslint-disable-next-line @next/next/no-img-element
@@ -556,9 +609,11 @@ export function PrintSheet({ doc }: { doc: FullDocument }) {
       </div>
 
       <p className="mt-4 border-t border-slate-200 pt-2 text-center text-[9px] text-slate-400">
-        {isInvoice
-          ? "This is a computer-generated invoice and is valid without a physical signature."
-          : `This quotation is valid until ${formatDate(doc.validUntil)} and is not a demand for payment.`}
+        {isProforma
+          ? "This is a Proforma Invoice issued for customs clearance, LC opening, and pre-shipment documentation. It is not a tax invoice."
+          : isInvoice
+            ? "This is a computer-generated tax invoice and is valid without a physical signature."
+            : `This quotation is valid until ${formatDate(doc.validUntil)} and is not a demand for payment.`}
       </p>
     </div>
   );

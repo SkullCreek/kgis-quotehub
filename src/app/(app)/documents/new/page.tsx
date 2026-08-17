@@ -18,7 +18,12 @@ export default async function NewDocumentPage({
   searchParams: Promise<{ type?: string; customer?: string }>;
 }) {
   const params = await searchParams;
-  const type = params.type === "invoice" ? "invoice" : "quotation";
+  const type =
+    params.type === "invoice"
+      ? "invoice"
+      : params.type === "proforma"
+        ? "proforma"
+        : "quotation";
 
   const [customers, products, documentNumber] = await Promise.all([
     listCustomers(),
@@ -60,9 +65,24 @@ export default async function NewDocumentPage({
     issueDate: todayISO(),
     dueDate: type === "invoice" ? todayISO(15) : "",
     validUntil:
-      type === "quotation" ? todayISO(COMPANY.quotationValidityDays) : "",
+      type === "quotation" || type === "proforma"
+        ? todayISO(COMPANY.quotationValidityDays)
+        : "",
     poNumber: "",
     notes: "",
+
+    exportScheme: "lut",
+    exportLutNumber: COMPANY.defaultLutNumber,
+    exportLutDate: COMPANY.defaultLutDate,
+    portOfLoading: "",
+    portOfDischarge: "",
+    incoterms: "FOB (Free on Board)",
+    modeOfShipment: "Sea Freight",
+    countryOfOrigin: "India",
+    totalPackages: "",
+    netWeight: "",
+    grossWeight: "",
+
     discountPercent: "0",
     shipping: "0",
     customTaxes: [],

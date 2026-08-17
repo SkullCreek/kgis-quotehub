@@ -18,6 +18,9 @@ import {
   CUSTOM_TAX_PRESETS,
   REMARK_PRESETS,
   UNITS,
+  INCOTERMS_PRESETS,
+  SHIPMENT_MODES,
+  INDIAN_PORTS,
   type EditorLine,
   type EditorSection,
   type EditorValues,
@@ -43,6 +46,7 @@ export function DocumentEditor({
   const [pending, startTransition] = useTransition();
 
   const isInvoice = values.type === "invoice";
+  const isProforma = values.type === "proforma";
   const customer = customers.find((c) => c.id === values.customerId) ?? null;
   const currency = getCurrency(values.currency);
 
@@ -241,7 +245,9 @@ export function DocumentEditor({
       return;
     }
     if (!values.number?.trim()) {
-      setError(`${isInvoice ? "Invoice" : "Quotation"} number is required.`);
+      setError(
+        `${isProforma ? "Proforma" : isInvoice ? "Invoice" : "Quotation"} number is required.`,
+      );
       return;
     }
     if (items.length === 0) {
@@ -275,7 +281,12 @@ export function DocumentEditor({
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div className="flex flex-wrap items-center gap-3">
           <h1 className="text-xl font-semibold text-slate-900">
-            {values.id ? "Edit" : "New"} {isInvoice ? "invoice" : "quotation"}
+            {values.id ? "Edit" : "New"}{" "}
+            {isProforma
+              ? "proforma invoice"
+              : isInvoice
+                ? "invoice"
+                : "quotation"}
           </h1>
           {isExportDoc ? (
             <span className="rounded-full bg-indigo-50 px-2.5 py-0.5 text-xs font-medium text-indigo-700">
@@ -285,7 +296,13 @@ export function DocumentEditor({
         </div>
         <div className="flex gap-2 w-full sm:w-auto">
           <Link
-            href={isInvoice ? "/invoices" : "/quotations"}
+            href={
+              isProforma
+                ? "/proformas"
+                : isInvoice
+                  ? "/invoices"
+                  : "/quotations"
+            }
             className="flex-1 sm:flex-none text-center rounded-lg border border-slate-300 bg-white px-3.5 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
           >
             Cancel
@@ -358,11 +375,25 @@ export function DocumentEditor({
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 lg:col-span-2">
-          <Field label={isInvoice ? "Invoice number" : "Quotation number"}>
+          <Field
+            label={
+              isProforma
+                ? "Proforma number"
+                : isInvoice
+                  ? "Invoice number"
+                  : "Quotation number"
+            }
+          >
             <TextInput
               value={values.number}
               onChange={(e) => set("number", e.target.value)}
-              placeholder={isInvoice ? "INV-2026-KGIS001" : "QTN-2026-KGIS001"}
+              placeholder={
+                isProforma
+                  ? "PI-2026-KGIS001"
+                  : isInvoice
+                    ? "INV-2026-KGIS001"
+                    : "QTN-2026-KGIS001"
+              }
             />
           </Field>
 
@@ -421,6 +452,141 @@ export function DocumentEditor({
           </Field>
         </div>
       </div>
+
+      {/* ---- Export & Customs details card ---- */}
+      {isExportDoc ? (
+        <div className="rounded-xl border border-indigo-200 bg-indigo-50/60 p-4 space-y-4">
+          <div className="flex flex-wrap items-center justify-between gap-2 border-b border-indigo-100 pb-2.5">
+            <div>
+              <h2 className="text-sm font-semibold text-indigo-950">
+                Indian Export Compliance &amp; Customs Details
+              </h2>
+              <p className="text-xs text-indigo-700">
+                Required under IGST Act Section 16 &amp; Indian Customs (ICEGATE)
+              </p>
+            </div>
+            <span className="rounded-md bg-indigo-100 px-2 py-1 text-[11px] font-mono font-medium text-indigo-800">
+              IEC: {COMPANY.iec}
+              {COMPANY.adCode ? ` | AD Code: ${COMPANY.adCode}` : ""}
+            </span>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            <Field label="Export GST Scheme" hint="Zero-rated supply under Sec 16">
+              <Select
+                value={values.exportScheme}
+                onChange={(e) => set("exportScheme", e.target.value as "lut" | "paid")}
+              >
+                <option value="lut">Under LUT (Without payment of IGST)</option>
+                <option value="paid">On Payment of IGST</option>
+              </Select>
+            </Field>
+
+            {values.exportScheme === "lut" ? (
+              <>
+                <Field label="LUT Reference Number" hint="e.g. AD240325000123E">
+                  <TextInput
+                    value={values.exportLutNumber}
+                    onChange={(e) => set("exportLutNumber", e.target.value)}
+                    placeholder="LUT ARN / Ref No."
+                  />
+                </Field>
+
+                <Field label="LUT Date">
+                  <TextInput
+                    type="date"
+                    value={values.exportLutDate}
+                    onChange={(e) => set("exportLutDate", e.target.value)}
+                  />
+                </Field>
+              </>
+            ) : null}
+
+            <Field label="Port of Loading (India)">
+              <TextInput
+                value={values.portOfLoading}
+                list="indian-ports-list"
+                onChange={(e) => set("portOfLoading", e.target.value)}
+                placeholder="Nhava Sheva (INNSA1) / ICD Vapi"
+              />
+            </Field>
+
+            <Field label="Port of Discharge / Destination">
+              <TextInput
+                value={values.portOfDischarge}
+                onChange={(e) => set("portOfDischarge", e.target.value)}
+                placeholder="Jebel Ali (AEJEA) / Hamburg"
+              />
+            </Field>
+
+            <Field label="Incoterms (Price/Delivery Terms)">
+              <Select
+                value={values.incoterms}
+                onChange={(e) => set("incoterms", e.target.value)}
+              >
+                <option value="">Select Incoterms…</option>
+                {INCOTERMS_PRESETS.map((t) => (
+                  <option key={t} value={t}>
+                    {t}
+                  </option>
+                ))}
+              </Select>
+            </Field>
+
+            <Field label="Mode of Shipment">
+              <Select
+                value={values.modeOfShipment}
+                onChange={(e) => set("modeOfShipment", e.target.value)}
+              >
+                <option value="">Select Mode…</option>
+                {SHIPMENT_MODES.map((m) => (
+                  <option key={m} value={m}>
+                    {m}
+                  </option>
+                ))}
+              </Select>
+            </Field>
+
+            <Field label="Country of Origin">
+              <TextInput
+                value={values.countryOfOrigin}
+                onChange={(e) => set("countryOfOrigin", e.target.value)}
+                placeholder="India"
+              />
+            </Field>
+
+            <Field label="Packages (Count & Type)">
+              <TextInput
+                value={values.totalPackages}
+                onChange={(e) => set("totalPackages", e.target.value)}
+                placeholder="4 Wooden Crates / 10 Boxes"
+              />
+            </Field>
+
+            <Field label="Net Weight">
+              <TextInput
+                value={values.netWeight}
+                onChange={(e) => set("netWeight", e.target.value)}
+                placeholder="450.00 Kg"
+              />
+            </Field>
+
+            <Field label="Gross Weight">
+              <TextInput
+                value={values.grossWeight}
+                onChange={(e) => set("grossWeight", e.target.value)}
+                placeholder="510.00 Kg"
+              />
+            </Field>
+          </div>
+
+          <datalist id="indian-ports-list">
+            {INDIAN_PORTS.map((p) => (
+              <option key={p} value={p} />
+            ))}
+          </datalist>
+        </div>
+      ) : null}
 
       {/* ---- Sections of line items ---- */}
       {values.sections.map((section, si) => (

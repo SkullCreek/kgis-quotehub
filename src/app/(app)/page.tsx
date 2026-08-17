@@ -46,12 +46,18 @@ export default async function DashboardPage() {
             {stats!.exportCount} export{stats!.exportCount === 1 ? "" : "s"}
           </span>
         ) : null}
-        <div className="ml-auto flex gap-2">
+        <div className="ml-auto flex flex-wrap gap-2">
           <Link
             href="/documents/new?type=quotation"
             className="rounded-lg border border-slate-300 bg-white px-3.5 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
           >
             New quotation
+          </Link>
+          <Link
+            href="/documents/new?type=proforma"
+            className="rounded-lg border border-slate-300 bg-white px-3.5 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
+          >
+            New proforma
           </Link>
           <Link
             href="/documents/new?type=invoice"
@@ -76,6 +82,7 @@ export default async function DashboardPage() {
                 value: row.outstanding,
                 tone: "text-amber-600",
               },
+              { label: "Proforma", value: row.proforma, tone: "text-indigo-600" },
               { label: "Quoted", value: row.quoted, tone: "text-slate-500" },
             ];
             return (
@@ -85,7 +92,7 @@ export default async function DashboardPage() {
                     {currency.code} — {currency.name}
                   </div>
                 ) : null}
-                <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
                   {cards.map((c) => (
                     <div
                       key={c.label}
