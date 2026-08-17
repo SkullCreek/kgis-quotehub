@@ -87,6 +87,7 @@ export const customTaxSchema = z.object({
 export const documentSchema = z.object({
   id: z.coerce.number().int().positive().optional(),
   type: z.enum(["quotation", "invoice"]),
+  number: z.string().trim().min(1, "Document number is required."),
   status: z
     .enum(["draft", "sent", "accepted", "rejected", "paid", "cancelled"])
     .default("draft"),

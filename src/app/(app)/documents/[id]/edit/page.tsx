@@ -34,6 +34,7 @@ export default async function EditDocumentPage({
   const initial: EditorValues = {
     id: doc.id,
     type: doc.type,
+    number: doc.number,
     status: doc.status,
     customerId: doc.customerId,
     currency: doc.currency,

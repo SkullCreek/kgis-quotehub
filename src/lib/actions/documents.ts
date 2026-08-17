@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { eq, desc, sql, and, or, ilike } from "drizzle-orm";
+import { eq, ne, desc, sql, and, or, ilike } from "drizzle-orm";
 import { db } from "@/db";
 import { documents, lineItems, customers } from "@/db/schema";
 import { documentSchema } from "@/lib/validation";
@@ -48,6 +48,11 @@ function formatNumber(type: DocType, seq: number): string {
   const prefix = type === "invoice" ? n.invoicePrefix : n.quotationPrefix;
   const padded = String(seq).padStart(n.pad, "0");
   return [prefix, n.year, `${n.series}${padded}`].filter(Boolean).join("-");
+}
+
+export async function previewNextDocumentNumber(type: DocType): Promise<string> {
+  const seq = await nextSequence(type);
+  return formatNumber(type, seq);
 }
 
 /**
@@ -246,6 +251,7 @@ export async function saveDocument(
 
   const base = {
     type: v.type,
+    number: v.number,
     status: v.status,
     customerId: v.customerId,
     customerSnapshot: JSON.stringify(snapshot),
@@ -292,14 +298,44 @@ export async function saveDocument(
         .limit(1);
       if (!existing[0]) return { ok: false, error: "Document not found." };
 
+      if (existing[0].number !== v.number) {
+        const duplicate = await db
+          .select({ id: documents.id })
+          .from(documents)
+          .where(and(eq(documents.number, v.number), ne(documents.id, v.id)))
+          .limit(1);
+        if (duplicate.length > 0) {
+          return {
+            ok: false,
+            error: `Document number "${v.number}" is already in use. Please choose a unique number.`,
+          };
+        }
+      }
+
       await db.update(documents).set(base).where(eq(documents.id, v.id));
       await db.delete(lineItems).where(eq(lineItems.documentId, v.id));
       documentId = v.id;
-      documentNumber = existing[0].number;
+      documentNumber = v.number;
     } else {
-      const created = await insertWithNextNumber(v.type, base);
-      documentId = created.id;
-      documentNumber = created.number;
+      const duplicate = await db
+        .select({ id: documents.id })
+        .from(documents)
+        .where(eq(documents.number, v.number))
+        .limit(1);
+      if (duplicate.length > 0) {
+        return {
+          ok: false,
+          error: `Document number "${v.number}" is already in use. Please choose a unique number.`,
+        };
+      }
+
+      const seq = await nextSequence(v.type);
+      const inserted = await db
+        .insert(documents)
+        .values({ ...base, seq })
+        .returning({ id: documents.id });
+      documentId = inserted[0].id;
+      documentNumber = v.number;
     }
 
     await db.insert(lineItems).values(
@@ -330,6 +366,12 @@ export async function saveDocument(
     return { ok: true, data: { id: documentId, number: documentNumber } };
   } catch (e) {
     const message = e instanceof Error ? e.message : String(e);
+    if (/duplicate key|unique constraint|23505/i.test(message)) {
+      return {
+        ok: false,
+        error: `Document number "${v.number}" is already in use. Please choose a unique number.`,
+      };
+    }
     if (message.includes("does not exist")) {
       return {
         ok: false,

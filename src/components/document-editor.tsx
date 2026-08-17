@@ -240,6 +240,10 @@ export function DocumentEditor({
       setError("Pick a customer first.");
       return;
     }
+    if (!values.number?.trim()) {
+      setError(`${isInvoice ? "Invoice" : "Quotation"} number is required.`);
+      return;
+    }
     if (items.length === 0) {
       setError("Add at least one line item with a description.");
       return;
@@ -354,6 +358,14 @@ export function DocumentEditor({
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 lg:col-span-2">
+          <Field label={isInvoice ? "Invoice number" : "Quotation number"}>
+            <TextInput
+              value={values.number}
+              onChange={(e) => set("number", e.target.value)}
+              placeholder={isInvoice ? "INV-2026-KGIS001" : "QTN-2026-KGIS001"}
+            />
+          </Field>
+
           <Field label="Issue date">
             <TextInput
               type="date"

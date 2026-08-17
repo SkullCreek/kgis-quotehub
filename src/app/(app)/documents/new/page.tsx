@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { listCustomers } from "@/lib/actions/customers";
 import { listProducts } from "@/lib/actions/products";
+import { previewNextDocumentNumber } from "@/lib/actions/documents";
 import { DocumentEditor } from "@/components/document-editor";
 import {
   blankSection,
@@ -19,9 +20,10 @@ export default async function NewDocumentPage({
   const params = await searchParams;
   const type = params.type === "invoice" ? "invoice" : "quotation";
 
-  const [customers, products] = await Promise.all([
+  const [customers, products, documentNumber] = await Promise.all([
     listCustomers(),
     listProducts(),
+    previewNextDocumentNumber(type),
   ]);
 
   if (customers.length === 0) {
@@ -50,6 +52,7 @@ export default async function NewDocumentPage({
 
   const initial: EditorValues = {
     type,
+    number: documentNumber,
     status: "draft",
     customerId: preselected?.id ?? null,
     currency: preselected?.currency ?? "INR",

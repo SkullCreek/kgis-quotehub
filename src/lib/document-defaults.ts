@@ -39,6 +39,7 @@ export interface EditorCustomTax {
 export interface EditorValues {
   id?: number;
   type: DocType;
+  number: string;
   status: string;
   customerId: number | null;
   currency: string;
